@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard Quiz App</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f6f8;
+      padding: 20px;
+    }
+    .quiz-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .flashcard {
+      min-height: 150px;
+      background-color: #f1f3f5;
+      border: 2px dashed #007bff;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      margin: 20px 0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #333;
+    }
+    .controls button, .form-container button {
+      padding: 10px 16px;
+      margin: 4px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .controls button:hover, .form-container button:hover {
+      background-color: #0056b3;
+    }
+    button.edit-btn {
+      background-color: #ffc107;
+      color: #000;
+    }
+    button.edit-btn:hover {
+      background-color: #e0a800;
+    }
+    button.delete-btn {
+      background-color: #dc3545;
+    }
+    button.delete-btn:hover {
+      background-color: #bd2130;
+    }
+    .form-container {
+      margin-top: 25px;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+    }
+    .form-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <h2>Flashcard Quiz App</h2>
+    
+    <!-- Flashcard Display Box -->
+    <div class="flashcard" id="cardDisplay">Click button to show answer</div>
+
+    <!-- Navigation & Control Buttons -->
+    <div class="controls">
+      <button id="toggleBtn" onclick="toggleAnswer()">Show Answer</button>
+      <div>
+        <button onclick="prevCard()">Previous</button>
+        <button onclick="nextCard()">Next</button>
+      </div>
+      <div>
+        <button class="edit-btn" onclick="editCard()">Edit Card</button>
+        <button class="delete-btn" onclick="deleteCard()">Delete Card</button>
+      </div>
+    </div>
+
+    <!-- Form to Add New Flashcards -->
+    <div class="form-container">
+      <h3>Add New Flashcard</h3>
+      <input type="text" id="inputQuestion" placeholder="Enter Question" /><br>
+      <input type="text" id="inputAnswer" placeholder="Enter Answer" /><br>
+      <button onclick="addCard()">Add Card</button>
+    </div>
+  </div>
+
+  <script>
+    let cards = [
+      { question: "What does HTML stand for?", answer: "HyperText Markup Language" },
+      { question: "What is an operational amplifier (op-amp)?", answer: "A high-gain voltage amplifier." },
+      { question: "What is 10 + 25?", answer: "35" }
+    ];
+
+    let currentIndex = 0;
+    let showingQuestion = true;
+
+    const display = document.getElementById("cardDisplay");
+    const toggleButton = document.getElementById("toggleBtn");
+
+    function renderCard() {
+      if (cards.length === 0) {
+        display.innerText = "No cards available. Add one below!";
+        toggleButton.disabled = true;
+        return;
+      }
+      toggleButton.disabled = false;
+      display.innerText = showingQuestion ? cards[currentIndex].question : cards[currentIndex].answer;
+      toggleButton.innerText = showingQuestion ? "Show Answer" : "Show Question";
+    }
+
+    function toggleAnswer() {
+      showingQuestion = !showingQuestion;
+      renderCard();
+    }
+
+    function nextCard() {
+      if (cards.length === 0) return;
+      currentIndex = (currentIndex + 1) % cards.length;
+      showingQuestion = true;
+      renderCard();
+    }
+
+    function prevCard() {
+      if (cards.length === 0) return;
+      currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+      showingQuestion = true;
+      renderCard();
+    }
+
+    function addCard() {
+      const q = document.getElementById("inputQuestion").value.trim();
+      const a = document.getElementById("inputAnswer").value.trim();
+
+      if (q && a) {
+        cards.push({ question: q, answer: a });
+        document.getElementById("inputQuestion").value = "";
+        document.getElementById("inputAnswer").value = "";
+        currentIndex = cards.length - 1;
+        showingQuestion = true;
+        renderCard();
+      } else {
+        alert("Please enter both a question and an answer.");
+      }
+    }
+
+    function editCard() {
+      if (cards.length === 0) return;
+      const updatedQuestion = prompt("Edit Question:", cards[currentIndex].question);
+      if (updatedQuestion === null) return; // user cancelled
+
+      const updatedAnswer = prompt("Edit Answer:", cards[currentIndex].answer);
+      if (updatedAnswer === null) return; // user cancelled
+
+      if (updatedQuestion.trim() && updatedAnswer.trim()) {
+        cards[currentIndex].question = updatedQuestion.trim();
+        cards[currentIndex].answer = updatedAnswer.trim();
+        renderCard();
+      } else {
+        alert("Question and Answer cannot be empty.");
+      }
+    }
+
+    function deleteCard() {
+      if (cards.length === 0) return;
+      cards.splice(currentIndex, 1);
+      if (currentIndex >= cards.length) {
+        currentIndex = Math.max(0, cards.length - 1);
+      }
+      showingQuestion = true;
+      renderCard();
+    }
+
+    renderCard();
+  </script>
+
+</body>
+</html>
